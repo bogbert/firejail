@@ -139,6 +139,7 @@ int arg_x11_block = 0;				// block X11
 int arg_x11_xorg = 0;				// use X11 security extension
 int arg_allusers = 0;				// all user home directories visible
 int arg_machineid = 0;				// spoof /etc/machine-id
+char *arg_machineid_val = NULL;			// force a given machine-id value
 int arg_allow_private_blacklist = 0; 		// blacklist things in private directories
 int arg_disable_mnt = 0;			// disable /mnt and /media
 int arg_noprofile = 0; // use default.profile if none other found/specified
@@ -1959,6 +1960,10 @@ int main(int argc, char **argv, char **envp) {
 		}
 		else if (strcmp(argv[i], "--machine-id") == 0) {
 			arg_machineid = 1;
+		}
+		else if (strncmp(argv[i], "--machine-id=", 13) == 0) {
+			arg_machineid = 2;
+			arg_machineid_val = argv[i] + 13;
 		}
 		else if (strcmp(argv[i], "--private") == 0) {
 			arg_private = 1;

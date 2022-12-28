@@ -36,28 +36,42 @@ void fs_machineid(void) {
 	// if --machine-id flag is inactive, do nothing
 	if (arg_machineid == 0)
 		return;
-	if (arg_debug)
-		printf("Generating a new machine-id\n");
 
-	// init random number generator
-	srand(time(NULL));
+	if (arg_machineid == 2) {
+		if (arg_debug)
+			printf("Forcing a user specified machine-id\n");
 
-	// generate random id
-	mid.u32[0] = rand();
-	mid.u32[1] = rand();
-	mid.u32[2] = rand();
-	mid.u32[3] = rand();
+		// write it in a file
+		FILE *fp = fopen(RUN_MACHINEID, "we");
+		if (!fp)
+			errExit("fopen");
+		fprintf(fp, "%s\n", arg_machineid_val);
+		fclose(fp);
+	} else {
+		if (arg_debug)
+			printf("Generating a new machine-id\n");
 
-	// UUID version 4 and DCE variant
-	mid.u8[6] = (mid.u8[6] & 0x0F) | 0x40;
-	mid.u8[8] = (mid.u8[8] & 0x3F) | 0x80;
+		// init random number generator
+		srand(time(NULL));
 
-	// write it in a file
-	FILE *fp = fopen(RUN_MACHINEID, "we");
-	if (!fp)
-		errExit("fopen");
-	fprintf(fp, "%08x%08x%08x%08x\n", mid.u32[0], mid.u32[1], mid.u32[2], mid.u32[3]);
-	fclose(fp);
+		// generate random id
+		mid.u32[0] = rand();
+		mid.u32[1] = rand();
+		mid.u32[2] = rand();
+		mid.u32[3] = rand();
+
+		// UUID version 4 and DCE variant
+		mid.u8[6] = (mid.u8[6] & 0x0F) | 0x40;
+		mid.u8[8] = (mid.u8[8] & 0x3F) | 0x80;
+
+		// write it in a file
+		FILE *fp = fopen(RUN_MACHINEID, "we");
+		if (!fp)
+			errExit("fopen");
+		fprintf(fp, "%08x%08x%08x%08x\n", mid.u32[0], mid.u32[1], mid.u32[2], mid.u32[3]);
+		fclose(fp);
+	}
+
 	if (set_perms(RUN_MACHINEID, 0, 0, 0444))
 		errExit("set_perms");
 
